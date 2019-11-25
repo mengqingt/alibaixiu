@@ -1,3 +1,5 @@
+// import { set } from "mongoose";
+
 //用户添加
 $('#userForm').on('submit',function(){
     var formData = $(this).serialize();
@@ -81,4 +83,69 @@ $('#modifyBox').on('submit','#modifyForm',function(){
   })
     //阻止默认提交
     return false
+})
+//点击删除删除用户
+$('#multipleUser').on('click','#delete',function(){
+   let id = $(this).siblings('#edit').attr('data-id');
+   //alert(id)
+   $.ajax({
+    type:'delete',
+    url:'/users/' + id,
+    success : function (response) {
+      //  console.log(response);
+    let confirmDelete =  confirm('确定要删除吗')
+        if(confirmDelete){
+            location.reload();
+        }
+   
+    }
+})
+})
+//批量删除
+$('#selectAll').on('change',function(){
+//全选
+ var status = $(this).prop('checked');
+ if(status){
+    $('.deleteMany').show();
+ }
+ else{
+    $('.deleteMany').css('display','none')
+ }
+ //console.log(status);
+ $('#multipleUser').find('.checkbox').prop('checked',status);
+})
+$('#multipleUser').on('change','.checkbox',function(){
+    var inputs = $('#multipleUser').find('.checkbox');
+    if(inputs.length == inputs.filter(':checked').length ){
+        $('#selectAll').prop('checked',true)
+    }
+    else{
+        $('#selectAll').prop('checked',false)
+    }
+    if(inputs.filter(':checked').length>0){
+        $('.deleteMany').show();
+    }
+    else{
+        $('.deleteMany').css('display','none')
+    }
+})
+$('.deleteMany').on('click',function(){
+    var  arr=[];
+    var arr1 = $('#multipleUser').find('.checkbox').filter(':checked');
+     arr1.each(function(index,element){
+         arr.push($(element).attr('data-id'))
+     });
+  //  console.log(arr);
+    if(confirm('你确认要删除吗')){
+       // alert('ok')
+       $.ajax({
+        type:'delete',
+        url:'/users/' + arr.join('-'),
+        success : function(response){
+           // console.log(response);
+           location.reload();
+        }
+      })
+   }
+
 })
